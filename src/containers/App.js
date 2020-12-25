@@ -1,49 +1,49 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
+import { connect } from 'react-redux';
 import CardList from '../components/CardList';
 import SearchBox from '../components/SearchBox';
 import Scroll from '../components/Scroll';
 import ErrorBoundry from '../components/ErrorBoundry';
 import './App.css';
 
-// STATE >> PROPS (parent feeds state to child component, as soon as a child receives a state, it's a property. That child can never change that property)
-// 	ie. parent tells child what the 'state' is and child receives it as props (robots)
+import { setSearchfield, requestRobots } from '../redux/actions';
 
-// STATE: an object that describes your app (in this case, robots and entry in searchbox)
-// PROPS: never change, pure, get input then return one output, things that come out of 'state'
+class App extends React.Component {
 
-function App() {
-	const [robots, setRobots] = useState([]);
-	const [searchfield, setSearchfield] = useState('');
-
-	useEffect(() => {
-		fetch('http://jsonplaceholder.typicode.com/users')
-		.then(response => response.json())
-		.then(users => setRobots(users))
-	}, [])
-
-	const onSearchChange = (event) => {
-		setSearchfield(event.target.value);
+	componentDidMount() {
+		this.props.onRequestRobots();
 	}
-
-	const filteredRobots = robots.filter(robot => 
-		robot.name.toLowerCase().includes(searchfield.toLowerCase())
-	)
-
-	return !robots.length ?
-		<h1>Loading</h1>:
-	(
-		<div className = 'tc'>
-			<h1 className = 'f1'>RoboFriends</h1>
-			<SearchBox searchChange = {onSearchChange}/>
-			<Scroll>
-			<ErrorBoundry>
-				<CardList robots = {filteredRobots}/>
-			</ErrorBoundry>
-			</Scroll>
-		</div>
-	);
+	
+	render() {
+		const { searchfield, onSearchChange, robots, isPending } = this.props;
+		const filteredRobots = robots.filter(robot => 
+			robot.name.toLowerCase().includes(searchfield.toLowerCase()));
+		return isPending ?
+			<h1>Loading</h1> :
+		(
+			<div className = 'tc'>
+				<h1 className = 'f1'>RoboFriends</h1>
+				<SearchBox searchChange = {onSearchChange}/>
+				<Scroll>
+				<ErrorBoundry>
+					<CardList robots = {filteredRobots}/>
+				</ErrorBoundry>
+				</Scroll>
+			</div>
+		);
+	}
 }
 
-export default App;
+const mapStateToProps = state => ({
+	searchfield: state.searchRobots.searchfield,
+	robots: state.requestRobots.robots,
+	isPending: state.requestRobots.isPending,
+	error: state.requestRobots.error,
+})
 
-//Input listener (SearchBox.js) >> app onSearchChange (App.js) >> update searchfield (App.js) >> compare and filter robot name (App.js) >> filter robots (CardList.js)
+const mapDispatchToProps = (dispatch) => ({
+	onSearchChange: (event) => dispatch(setSearchfield(event.target.value)),
+	onRequestRobots: () => dispatch(requestRobots())
+})
+
+export default connect(mapStateToProps, mapDispatchToProps)(App);
