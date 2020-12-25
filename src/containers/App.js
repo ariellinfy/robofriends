@@ -1,4 +1,4 @@
-import React, {Component} from 'react';
+import React, { Component } from 'react';
 import CardList from '../components/CardList';
 import SearchBox from '../components/SearchBox';
 // import {robots} from './robots';
@@ -33,16 +33,16 @@ class App extends Component { //an object
 	//It is a tool for us to make requests to servers
 
 	onSearchChange = (event) => {
-		this.setState({searchfield:event.target.value})
+		this.setState({ searchfield: event.target.value })
 		// console.log(event.target.value); //gives the value of the search term
 		// console.log(filteredRobots);
 	}
 
 	render() {
 		const { robots, searchfield } = this.state;
-		const filteredRobots = robots.filter(robot => {
-			return robot.name.toLowerCase().includes(searchfield.toLowerCase());
-		})
+		const filteredRobots = robots.filter(robot => 
+			robot.name.toLowerCase().includes(searchfield.toLowerCase())
+		)
 		return !robots.length ?
 			<h1>Loading</h1>:
 		(
